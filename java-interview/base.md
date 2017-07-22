@@ -1,0 +1,45 @@
+## 基础题
+1.存在两个类，B 继承 A，C 继承 B，我们能将 B 转换为 C 么？如 C = (C) B
+
+答案：不能。参见base.typecast.Test.java
+
+2. 哪个类包含 clone 方法？是 Cloneable 还是 Object？
+
+答案: java.lang.Cloneable 是一个标示性接口，不包含任何方法，clone 方法在 object 类中定义。并且需要知道 clone() 方法是一个本地方法，这意味着它是由 c 或 c++ 或 其他本地语言实现的。
+
+3. Java 中 ++ 操作符是线程安全的吗？
+
+答案： 不是线程安全的操作。它涉及到多个指令，如读取变量值，增加，然后存储回内存，这个过程可能会出现多个线程交差。
+
+4. 3*0.1 == 0.3 将会返回什么？true 还是 false?  
+答案: false
+
+5. int 和 Integer 哪个会占用更多的内存？  
+(答案):Integer 对象会占用更多的内存。Integer 是一个对象，需要存储对象的元数据。但是 int 是一个原始类型的数据，所以占用的空间更少。
+
+6. “a==b”和”a.equals(b)”有什么区别？  
+(答案)  如果 a 和 b 都是对象，则 a==b 是比较两个对象的引用，只有当 a 和 b 指向的是堆中的同一个对象才会返回 true，而 a.equals(b) 是进行逻辑比较，所以通常需要重写该方法来提供逻辑一致性的比较。例如，String 类重写 equals() 方法，所以可以用于两个不同对象，但是包含的字母相同的比较。
+
+7. a.hashCode() 有什么用？与 a.equals(b) 有什么关系？
+(答案) hashCode() 方法是相应对象整型的 hash 值。它常用于基于 hash 的集合类，如 Hashtable、HashMap、LinkedHashMap等等。它与 equals() 方法关系特别紧密。根据 Java 规范，**两个使用 equal() 方法来判断相等的对象，必须具有相同的 hash code**。
+
+8. Java 中的编译期常量是什么？使用它又什么风险？  
+   公共静态不可变（public static final ）变量也就是我们所说的编译期常量，这里的 public 可选的。实际上这些变量在编译时会被替换掉，因为编译器知道这些变量的值，并且知道这些变量在运行时不能改变。这种方式存在的一个问题是你使用了一个内部的或第三方库中的公有编译时常量，但是这个值后面被其他人改变了，但是你的客户端仍然在使用老的值，甚至你已经部署了一个新的jar。为了避免这种情况，当你在更新依赖 JAR 文件时，确保重新编译你的程序。
+   
+   
+   ------------
+   
+   
+ ## 集合框架
+ 9.  List、Set、Map 和 Queue 之间的区别(答案)  
+ List 是一个有序集合，允许元素重复。它的某些实现可以提供基于下标值的常量访问时间，但是这不是 List 接口保证的。Set 是一个无序集合。
+ 
+ 10. poll() 方法和 remove() 方法的区别？  
+ 都是移除队列头部对象，但是当队列为空时，remove()会抛出异常。
+ 
+ 11. Java 中 LinkedHashMap 和 PriorityQueue 的区别是什么？(答案)  
+     代码见 base.PriorityQueueTest.java (priority queue only keeps head in sorted order 优先队列只保证头部是排序的)    
+     PriorityQueue 保证最高或者最低优先级的的元素总是在队列头部，但是 LinkedHashMap 维持的顺序是元素插入的顺序。**当遍历一个 PriorityQueue 时，没有任何顺序保证**，但是 LinkedHashMap 课保证遍历顺序是元素插入的顺序。
+     
+ 12. 用哪两种方式来实现集合的排序？(答案)  
+     你可以使用有序集合，如 TreeSet 或 TreeMap，你也可以使用有顺序的的集合，如 list，然后通过 Collections.sort() 来排序。

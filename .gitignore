@@ -1,3 +1,6 @@
 *.jar
 *.log
 *.class
+*.iml
+.idea
+

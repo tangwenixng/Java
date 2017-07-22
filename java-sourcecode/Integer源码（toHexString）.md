@@ -43,7 +43,7 @@ private static String toUnsignedString0(int val, int shift) {
 那么`Integer.numberOfLeadingZeros(val)`会返回什么呢？<br>
 看Debug图：
 
-![图1.png](/img/1.JPG)
+![图1.png](./img/1.JPG)
 numberOfLeadingZeros(123)返回的是25。为什么是25呢？<br>
 因为123的二进制是 `0000 0000 0000 0000 0000 0000 0111 1011`。  
 **数一数前面有多少个0?**<br>

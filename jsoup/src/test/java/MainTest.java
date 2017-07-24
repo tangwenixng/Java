@@ -1,3 +1,5 @@
+import com.util.EmailUtil;
+import org.apache.commons.mail.EmailException;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -66,6 +68,26 @@ public class MainTest {
             String text = e.text();
             System.out.println("href: "+href+" text:"+text);
         }
+    }
+
+    @Test
+    public void testDouyu196() throws IOException {
+        Document doc = Jsoup.connect("https://www.douyu.com/4809").get();
+//        System.out.println(doc);
+
+        Elements eles = doc.getElementsByClass("time-box");
+        for (Element e : eles) {
+            System.out.println(e.html());
+            System.out.println("****************************");
+            String aVal = e.getElementsByTag("a").text();
+            System.out.println(aVal);
+        }
+        System.out.println(eles.size());
+    }
+
+    @Test
+    public void testSendEmail() throws EmailException {
+        EmailUtil.sendEmail("twx843571091@gmail.com");
     }
 
 }

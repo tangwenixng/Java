@@ -9,6 +9,8 @@ import org.jsoup.select.Elements;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static org.junit.Assert.*;
 

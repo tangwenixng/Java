@@ -8,6 +8,8 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by twx on 2017/7/24.
@@ -19,7 +21,7 @@ public class Notify {
      * @return
      * @throws IOException
      */
-    public boolean isLiving(String roomId) throws IOException {
+    public static boolean isLiving(String roomId) throws IOException {
         Document doc = Jsoup.connect("https://www.douyu.com/"+roomId).get();
         //当前没有很直观的方法判断是否主播在直播，
         //所以我分析了下 直播中和未直播的 html文件
@@ -31,9 +33,28 @@ public class Notify {
     }
 
     public static void main(String[] args) {
-        Notify notify = new Notify();
 
-        new Thread(() -> {
+        Timer timer = new Timer();
+
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    if (isLiving(args[0])) {
+                        EmailUtil.sendEmail("twx843571091@gmail.com");
+                        System.out.println("isLiving...");
+                        timer.cancel();
+                    }
+                    System.out.println("no living...");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (EmailException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, 1000 * 60*10);
+
+        /*new Thread(() -> {
             while (true) {
                 Thread currentThread = Thread.currentThread();
                 System.out.println(currentThread.getName()+" is monitoring....");
@@ -53,8 +74,7 @@ public class Notify {
                     e.printStackTrace();
                 }
             }
-        }).start();
-        System.out.println("main has runned....");
+        }).start();*/
     }
 
 }

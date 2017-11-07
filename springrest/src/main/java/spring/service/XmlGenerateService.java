@@ -8,6 +8,8 @@ import org.jdom.Namespace;
 import org.jdom.input.SAXBuilder;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import spring.model.*;
 
@@ -15,6 +17,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -22,16 +25,18 @@ import java.util.List;
  */
 @Service("xmlGenerateService")
 public class XmlGenerateService {
+    private static final Logger logger = LoggerFactory.getLogger(XmlGenerateService.class);
 
     private Namespace serv = Namespace.getNamespace("serv","http://www.webex.com/schemas/2002/06/service");
     private Namespace meet = Namespace.getNamespace("meet","http://www.webex.com/schemas/2002/06/service/meeting");
+    private Namespace ep = Namespace.getNamespace("ep", "http://www.webex.com/schemas/2002/06/service/ep");
     /**
      * 创建会议 xml
      * @param createMeeting
      * @return
      */
     public String createMeetingReq(String template, CreateMeetingRequest createMeeting){
-        Document doc = getEditCreateMeetingDoc(template,createMeeting);
+        Document doc = createMeetingDoc(template,createMeeting);
         return  doc2str(doc);
     }
 
@@ -73,27 +78,11 @@ public class XmlGenerateService {
         return "";
     }
     /**
-     * 设置用户名和密码
-     * @param doc
-     * @param sc
-     */
-    public void setSecurityContext(Document doc, SecurityContext sc) {
-        List<Element> securityContext = doc.getRootElement().getChild("header").getChild("securityContext").getChildren();
-        //用户名密码
-        for (Element c : securityContext) {
-            if (c.getName()=="siteName") c.setText(sc.getSiteName());
-            else if (c.getName()=="webExID") c.setText(sc.getWebExId());
-            else if (c.getName()=="password") c.setText(sc.getPassword());
-            System.out.println(c.getText()+" ");
-        }
-    }
-
-    /**
      * 修改创建会议的xml 返回doc
      * @param file
      * @param cm
      */
-    public  Document getEditCreateMeetingDoc(String file,CreateMeetingRequest cm) {
+    public  Document createMeetingDoc(String file,CreateMeetingRequest cm) {
         SAXBuilder builder = new SAXBuilder();
         Document doc=null;
         try {
@@ -134,8 +123,10 @@ public class XmlGenerateService {
             schedule.getChild("duration").setText(String.valueOf(cm.getDuration()));
 
         } catch (JDOMException e) {
+            logger.error("CreateMeetingDoc jdom error");
             e.printStackTrace();
         } catch (IOException e) {
+            logger.error(file+" not found");
             e.printStackTrace();
         }
         return doc;
@@ -196,20 +187,11 @@ public class XmlGenerateService {
     }
 
     /**
-     * Document 转String
-     * @param document
-     * @return
-     */
-    public static String doc2str(Document document) {
-        return new XMLOutputter().outputString(document);
-    }
-
-    /**
      * 响应xml转成CreateMeetingResponse对象
      * @param respone
      * @return
      */
-    public CreateMeetingResponse respone2MeetingDetail(String respone) {
+    public CreateMeetingResponse respone2CreateMeetingResponse(String respone) {
         try {
             Document doc = str2doc(respone);
             return  doc2MeetingDetail(doc);
@@ -229,18 +211,28 @@ public class XmlGenerateService {
         return null;
     }
 
-    public SetMeetingResponse response2SetMeetingResponse(String respone){
+    public List<MeetingRecord> response2MeetingRecord(String response) {
+        try {
+            Document doc = str2doc(response);
+            return doc2MeetingRecord(doc);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return null;
     }
+
 
     private CreateMeetingResponse doc2MeetingDetail(Document document) {
         CreateMeetingResponse md = new CreateMeetingResponse();
 
         Element root = document.getRootElement();
-//        System.out.println("rootName: "+root.getName());
+        logger.debug("rootName: "+root.getName());
         String result = root.getChild("header",serv).getChild("response",serv).getChild("result",serv).getText();
         md.setResult(result);
-
+        if (!result.equalsIgnoreCase("SUCCESS")){
+            logger.error("create meeting failure");
+            return md;
+        }
         Element bodyContent = root.getChild("body",serv).getChild("bodyContent",serv);
         String meetingkey = bodyContent.getChild("meetingkey",meet).getText();
         md.setMeetingKey(meetingkey);
@@ -252,8 +244,10 @@ public class XmlGenerateService {
         Element root = document.getRootElement();
         String result = root.getChild("header",serv).getChild("response",serv).getChild("result",serv).getText();
         gmResponse.setResult(result);
-        if (!result.equalsIgnoreCase("SUCCESS"))
+        if (!result.equalsIgnoreCase("SUCCESS")){
+            logger.error("GetMeetingResponse is failure");
             return gmResponse;
+        }
         Element bodyContent = root.getChild("body",serv).getChild("bodyContent",serv);
         System.out.println(bodyContent.getName());
         //设置会议名称
@@ -279,14 +273,45 @@ public class XmlGenerateService {
         return  gmResponse;
     }
 
-    private SetMeetingResponse doc2SetMeetingResponse(Document document){
-        return null;
+    private List<MeetingRecord> doc2MeetingRecord(Document document) {
+        List<MeetingRecord> list = new ArrayList<>();
+        Element root = document.getRootElement();
+        String result = root.getChild("header",serv).getChild("response",serv).getChild("result",serv).getText();
+//        mr.setResult(result);
+        if (!result.equalsIgnoreCase("SUCCESS")){
+//            logger.error("GetMeetingResponse is failure");
+            return null;
+        }
+        Element bodyContent = root.getChild("body",serv).getChild("bodyContent",serv);
+        System.out.println(bodyContent.getName());
+        //设置会议名称
+        List<Element> recordings = bodyContent.getChildren("recording", ep);
+        for (Element recording : recordings) {
+            String name = recording.getChild("name",ep).getText();
+            String cTime = recording.getChild("createTime",ep).getText();
+            String downloadUrl = recording.getChild("fileURL",ep).getText();
+            MeetingRecord mr = new MeetingRecord();
+            mr.setName(name);
+            mr.setCreateTime(cTime);
+            mr.setDownloadUrl(downloadUrl);
+            list.add(mr);
+        }
+        return list;
     }
-
-    public static void saveXML(Document doc,String savePath) throws IOException {
-        XMLOutputter out = new XMLOutputter();
-        out.setFormat(Format.getPrettyFormat());
-        out.output(doc,new FileOutputStream(savePath));
+    /**
+     * 设置用户名和密码
+     * @param doc
+     * @param sc
+     */
+    public void setSecurityContext(Document doc, SecurityContext sc) {
+        List<Element> securityContext = doc.getRootElement().getChild("header").getChild("securityContext").getChildren();
+        //用户名密码
+        for (Element c : securityContext) {
+            if (c.getName()=="siteName") c.setText(sc.getSiteName());
+            else if (c.getName()=="webExID") c.setText(sc.getWebExId());
+            else if (c.getName()=="password") c.setText(sc.getPassword());
+            System.out.println(c.getText()+" ");
+        }
     }
 
     public static Document str2doc(String string) throws Exception {
@@ -295,12 +320,13 @@ public class XmlGenerateService {
         return document;
     }
 
-    public String xml2str(String filePath){
-        try {
-            return  FileUtils.readFileToString(new File(filePath));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+
+    /**
+     * Document 转String
+     * @param document
+     * @return
+     */
+    public static String doc2str(Document document) {
+        return new XMLOutputter().outputString(document);
     }
 }

@@ -1,5 +1,7 @@
 package spring.model.url;
 
+import org.slf4j.Logger;
+
 /**
  * Created by twx on 2017/8/25.
  */
@@ -39,5 +41,17 @@ public class JoinMeetingRequest {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public boolean checkSelf(Logger logger) {
+        if (siteName == "") {
+            logger.error("siteName is null");
+            return false;
+        }
+        if (meetingKey == "") {
+            logger.error("meetingKey is null");
+            return false;
+        }
+        return true;
     }
 }

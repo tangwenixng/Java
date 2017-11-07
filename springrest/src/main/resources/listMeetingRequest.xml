@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serv:message xmlns:serv="abc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <header>
+    <securityContext>
+      <siteName>soyuan</siteName>
+      <webExID>zys@soyuan.com.cn</webExID>
+      <password>Rain8088</password>
+    </securityContext>
+  </header>
+  <body>
+   <bodyContent
+   xsi:type="java:com.webex.service.binding.meeting.LstsummaryMeeting">
+      <listControl>
+        <startFrom>1</startFrom>
+        <maximumNum>10</maximumNum>
+        <listMethod>OR</listMethod>
+      </listControl>
+      <order>
+        <orderBy>STARTTIME</orderBy>
+        <orderAD>DESC</orderAD>
+      </order>
+    </bodyContent>
+  </body>
+</serv:message>

@@ -1,5 +1,7 @@
 package spring.model;
 
+import org.slf4j.Logger;
+
 /**
  * Created by twx on 2017/8/22.
  */
@@ -30,5 +32,21 @@ public class SecurityContext {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean checkSelf(Logger logger) {
+        if (siteName == "") {
+            logger.error("siteName is null");
+            return false;
+        }
+        if (webExId == "") {
+            logger.error("webExId is null");
+            return false;
+        }
+        if (password == "") {
+            logger.error("password is null");
+            return false;
+        }
+        return true;
     }
 }

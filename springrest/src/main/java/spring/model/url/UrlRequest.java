@@ -1,5 +1,6 @@
 package spring.model.url;
 
+import org.slf4j.Logger;
 import spring.model.SecurityContext;
 
 import java.util.List;
@@ -25,5 +26,17 @@ public class UrlRequest extends SecurityContext {
 
     public void setMeetingKey(String meetingKey) {
         this.meetingKey = meetingKey;
+    }
+
+    @Override
+    public boolean checkSelf(Logger logger) {
+        boolean parent = super.checkSelf(logger);
+        if (parent) {
+            if (meetingKey == "") {
+                logger.error("meetingKey is null");
+                return false;
+            }
+        }
+        return parent;
     }
 }

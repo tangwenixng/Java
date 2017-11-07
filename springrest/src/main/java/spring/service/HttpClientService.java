@@ -1,6 +1,8 @@
 package spring.service;
 
 import okhttp3.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -10,6 +12,7 @@ import java.io.IOException;
  */
 @Service("httpClientService")
 public class HttpClientService {
+    private static final Logger logger = LoggerFactory.getLogger(HttpClientService.class);
 
     public static String doPost(String url,String postStr) {
         String res=null;
@@ -25,10 +28,12 @@ public class HttpClientService {
         try {
             Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
+                logger.error("HttpClientService 服务器端错误: " + response);
                 throw new IOException("服务器端错误: " + response);
             }
             res =  response.body().string();
         } catch (IOException e) {
+            logger.error("HttpClientService doPost IOException :");
             e.printStackTrace();
         }
         return res;
@@ -53,6 +58,7 @@ public class HttpClientService {
         try {
             Response response = client.newCall(request).execute();
             if (!response.isSuccessful()) {
+                logger.error("getMeetingStatusRes 服务器端错误: " + response);
                 throw new IOException("服务器端错误: " + response);
             }
             String result = response.body().string();

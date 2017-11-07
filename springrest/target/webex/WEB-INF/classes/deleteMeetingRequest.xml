@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<serv:message xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:serv="abc">
+    <header>
+        <securityContext>
+            <siteName>soyuan</siteName>
+            <webExID>zys@soyuan.com.cn</webExID>
+            <password>Rain8088</password>
+        </securityContext>
+    </header>
+    <body>
+        <bodyContent xsi:type="java:com.webex.service.binding.meeting.DelMeeting">
+            <meetingKey>48591508</meetingKey>
+        </bodyContent>
+    </body>
+</serv:message>

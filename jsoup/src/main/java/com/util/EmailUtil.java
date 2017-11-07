@@ -15,7 +15,7 @@ public class EmailUtil {
         email.setCharset("utf-8");
         email.setHostName("smtp.163.com");
         email.setSmtpPort(994);
-        email.setAuthenticator(new DefaultAuthenticator("jianrenxing00@163.com", "474913884fgh"));
+        email.setAuthenticator(new DefaultAuthenticator("jianrenxing00@163.com", "************"));
         email.setSSL(true);
         email.setFrom("jianrenxing00@163.com");
         email.setSubject("小缘开播了！！！");
